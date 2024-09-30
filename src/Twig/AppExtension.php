@@ -127,6 +127,7 @@ class AppExtension extends AbstractExtension
             'manual_vendor' => 'Vendor',
             'manual_package' => 'Package',
             'manual_version' => 'Version',
+            'is_core' => 'Core?',
             'manual_type' => 'Document Type',
             'major_versions' => 'Major Version',
             'manual_language' => 'Language',

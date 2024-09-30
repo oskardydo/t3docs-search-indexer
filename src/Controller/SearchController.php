@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Dto\SearchDemand;
 use App\Repository\ElasticRepository;
 use Elastica\Exception\InvalidException;
-use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

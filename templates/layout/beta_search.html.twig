@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="robots" content="noindex,follow" />
+
+    {{ render_assets('css', 'header') | raw }}
+    {{ render_assets('js', 'header') | raw }}
+
+    {% block stylesheets %}{% endblock %}
+    <style>
+        .autocomplete {
+            z-index: 2;
+            overflow: auto;
+        }
+        .autocomplete .group {
+            border-bottom: 1px solid darkgrey;
+            font-size: 1.1rem;
+        }
+        .autocomplete .suggest-item-title {
+            font-weight: bold;
+        }
+        .autocomplete .suggest-item-content {
+            font-size: 0.9rem;
+        }
+        .autocomplete a, .autocomplete span {
+            display: block;
+        }
+    </style>
+
+    <!-- UNIVERSE BAR START -->
+    <script src="https://typo3.azureedge.net/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+    <script src="https://typo3.azureedge.net/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+    <!-- UNIVERSE BAR END -->
+
+    {% block link_tags %}
+        {% include 'partial/base/linktags.html.twig' %}
+    {% endblock %}
+
+</head>
+<body>
+<div class="page">
+    {% block topbar %}
+        {% include 'partial/base/topbar.html.twig' %}
+    {% endblock %}
+
+    {% block page_header %}
+        {% include 'partial/beta/page_header.html.twig' %}
+    {% endblock %}
+
+    <div class="page-main">
+        <div class="page-main-inner">
+            {% block navigation %}{% endblock %}
+
+            <div class="page-main-content">
+                <div class="rst-content">
+                    {% block pager_hidden %}
+                        {% include 'partial/base/pager_hidden.html.twig' %}
+                    {% endblock %}
+
+                    {% block page_breadcrumbs %}
+                        {% include 'partial/beta/breadcrumbs.html.twig' %}
+                    {% endblock %}
+
+                    <div class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+                        <div itemprop="articleBody">
+                            {% block page_content %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block page_footer %}
+        {% include 'partial/base/page_footer.html.twig' %}
+    {% endblock %}
+</div>
+
+{{ render_assets('js', 'footer') | raw }}
+
+<script type="text/javascript">
+    let DOCUMENTATION_OPTIONS = {
+        URL_ROOT: './',
+        VERSION: 'main',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE: true
+    };
+</script>
+
+
+<script>
+    if (typeof searchCount != 'undefined') {
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['setCustomUrl', document.URL + '&search_count=' + searchCount]);
+    }
+</script>
+<script id="R9wBKTwzv" src="https://app.usercentrics.eu/latest/main.js" type="application/javascript"></script>
+<script data-usercentrics="Matomo" src="/js/piwik.js" type="text/plain"></script>
+
+</body>
+
+</html>

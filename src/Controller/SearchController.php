@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\SearchDemand;
 use App\Repository\ElasticRepository;
 use Elastica\Exception\InvalidException;
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,7 +50,28 @@ class SearchController extends AbstractController
 
     /**
      * @return Response
-     * @throws InvalidException
+     * @throws InvalidException|JsonException
+     */
+    #[Route(path: '/search/beta', name: 'search-with-suggest')]
+    public function searchSuggest(Request $request): Response
+    {
+        $searchDemand = SearchDemand::createFromRequest($request);
+        $searchResults = $this->elasticRepository->findByQuery($searchDemand);
+
+        return $this->render('search/search_suggest.html.twig', [
+            'q' => $searchDemand->getQuery(),
+            'searchScope' => $searchDemand->getScope(),
+            'demand' => $searchDemand,
+            'filters' => $request->get('filters', []),
+            'results' => $searchResults,
+            'hasAggs' => array_filter(array_column($searchResults['aggs'] ?? [], 'buckets')) !== [],
+            'searchSuggest' => $this->elasticRepository->suggestScopes($searchDemand)['suggestions'] ?? [],
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidException|JsonException
      */
     #[Route(path: '/suggest', name: 'suggest')]
     public function suggest(Request $request): Response

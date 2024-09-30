@@ -2,9 +2,11 @@
 
 namespace App\Twig;
 
+use App\Dto\SearchDemand;
 use App\Helper\VersionFilter;
 use App\Helper\VersionSorter;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -13,7 +15,8 @@ class AppExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ParameterBagInterface $parameterBag,
-        private readonly Environment $twigEnvironment
+        private readonly Environment $twigEnvironment,
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -23,6 +26,9 @@ class AppExtension extends AbstractExtension
             new TwigFunction('render_assets', $this->renderAssets(...)),
             new TwigFunction('render_single_asset', $this->renderSingleAsset(...)),
             new TwigFunction('aggregationBucket', $this->aggregationBucket(...), ['is_safe' => ['html']]),
+            new TwigFunction('generateLinkWithout', $this->generateLinkWithout(...)),
+            new TwigFunction('generateLinkWith', $this->generateLinkWith(...)),
+            new TwigFunction('getLabelForFilter', $this->getLabelForFilter(...)),
             new TwigFunction('sortVersions', VersionSorter::sortVersions(...)),
             new TwigFunction('filterVersions', VersionFilter::filterVersions(...)),
         ];
@@ -59,6 +65,7 @@ class AppExtension extends AbstractExtension
 
     public function aggregationBucket(string $category, string $index, array $bucket): string
     {
+        $category = strtolower($category);
         $label = $bucket['key_as_string'] ?? $bucket['key'];
         $docCount = $bucket['doc_count'];
         $key = $bucket['key'];
@@ -90,5 +97,41 @@ class AppExtension extends AbstractExtension
         }
 
         return $in;
+    }
+
+    private function generateLinkWithout(SearchDemand $demand, string $key, mixed $value, bool $removeQuery = true): string
+    {
+        $filters['filters'] = $demand->withFilterValueForLinkGeneration($key, $value);
+
+        if ($removeQuery === false) {
+            $filters['q'] = $demand->getQuery();
+        }
+
+        return $this->urlGenerator->generate('search-with-suggest', $filters);
+    }
+
+    private function generateLinkWith(SearchDemand $demand, string $key, mixed $value, bool $removeQuery = true): string
+    {
+        $filters['filters'] = $demand->withoutFilterValueForLinkGeneration($key, $value);
+
+        if ($removeQuery === false) {
+            $filters['q'] = $demand->getQuery();
+        }
+
+        return $this->urlGenerator->generate('search-with-suggest', $filters);
+    }
+
+    private function getLabelForFilter(string $filter): string
+    {
+        $labels = [
+            'manual_vendor' => 'Vendor',
+            'manual_package' => 'Package',
+            'manual_version' => 'Version',
+            'manual_type' => 'Document Type',
+            'major_versions' => 'Major Version',
+            'manual_language' => 'Language',
+        ];
+
+        return $labels[$filter] ?? $filter;
     }
 }

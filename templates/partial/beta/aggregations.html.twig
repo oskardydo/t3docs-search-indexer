@@ -1,0 +1,37 @@
+<div class="aggregations" id="aggregations" role="tablist">
+    <div class="card">
+        <div class="card-header p-0">
+            <h2 class="mb-0 d-grid">
+                <button
+                        type="button"
+                        class="btn text-primary aggregations-toggle-body"
+                        data-text-hide="Hide filters"
+                        data-text-show="Show filters"
+                        onclick="document.getElementById('aggregations').classList.toggle('is-expanded')"
+                > <i class="fa fa-chevron-down"></i></button>
+            </h2>
+        </div>
+        <div class="card-body">
+            {% for title, buckets in aggregations %}
+                <div class="aggregation">
+                    <div class="aggregation-title" id="aggregation-title-{{ loop.index }}">
+                        <span class="fs-4 fw-bold aggregation-title-text">{{title}}</span>
+                    </div>
+                    <div id="collapse-{{ loop.index }}" class="">
+                        <div class="aggregation-body">
+                            {% for index, bucket in buckets.buckets %}
+                                {% if bucket.doc_count > 0 %}
+                                    <form action="{{ path('search-with-suggest') }}" method="get" class="form">
+                                        {% include 'partial/beta/form_filters.html.twig' with {'demand': demand, 'notValue': bucket.key} only %}
+                                        {{ aggregationBucket(title, index, bucket) }}
+                                        <input type="hidden" name="q" value="{{ (query is defined) ? query : '' }}">
+                                    </form>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

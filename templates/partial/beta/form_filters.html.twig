@@ -1,0 +1,11 @@
+{% for key,value in demand.currentFilters %}
+    {% if value is iterable %}
+        {% for valueK,valueV in value %}
+            {% if notValue is not defined or valueK != notValue %}
+                <input type="hidden" name="filters[{{ key }}][{{ valueK }}]" value="{{ valueV }}">
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <input type="hidden" name="filters[{{ key }}]" value="{{ value }}">
+    {% endif %}
+{% endfor %}

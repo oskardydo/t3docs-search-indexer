@@ -1,0 +1,234 @@
+{% extends '/layout/beta_search.html.twig' %}
+
+{% block title %}
+    Search BETA results for: {{ q }}
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .aggregations-toggle-body::before {
+            content: attr(data-text-show);
+            margin-right: 10px;
+        }
+
+        .aggregations.is-expanded .aggregations-toggle-body::before {
+            content: attr(data-text-hide);
+        }
+
+        .aggregations .aggregations-toggle-body:active,
+        .aggregations .aggregations-toggle-body:focus {
+            text-decoration: none;
+        }
+
+        .aggregations.is-expanded .aggregations-toggle-body .fa::before {
+            content: '\f077';
+        }
+
+        .aggregations .card-header {
+            border-bottom-width: 0;
+        }
+
+        .aggregations .card-body {
+            display: none;
+        }
+
+        .aggregations.is-expanded .card-header {
+            border-bottom-width: 1px;
+        }
+
+        .aggregations.is-expanded .card-body {
+            display: block;
+        }
+
+        .aggregation-title-text {
+        }
+
+        .aggregation-body {
+            padding-left: 20px;
+        }
+
+        .form-check-label,
+        .form-check-input {
+            cursor: pointer;
+        }
+
+        .page-item {
+            min-width: 41px;
+            margin-top: -1px;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .aggregations .card-header {
+                display: none;
+            }
+
+            .aggregations .card-body {
+                display: block;
+            }
+        }
+
+        .summary em {
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        .search-input {
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        .suggest-badges .badge.bg-primary {
+            border-top-left-radius: unset;
+            border-bottom-left-radius: unset;
+        }
+
+        .suggest-badges .badge {
+            opacity: 0.85;
+        }
+
+        .suggest-badges .badge.bg-secondary {
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+        }
+
+        .suggest-badges .suggest-remove {
+            text-decoration: none;
+        }
+
+        .suggest-badges .suggest-remove:after {
+            content: "x";
+            padding-left: 0.5rem;
+        }
+
+        .suggest-badges .suggest-badge {
+            white-space: nowrap;
+            user-select: none;
+            vertical-align: super;
+        }
+
+        .search-suggest-side > :not(:last-of-type) {
+            margin-bottom: 1rem;
+        }
+
+        .suggestion-rows span {
+            display: block;
+            margin-left: 1rem;
+            padding: 0.2rem 0;
+            font-size: 14px;
+        }
+
+        .suggest-badges {
+            background-color: #f7f7f7;
+            padding: 1rem;
+            border-bottom-right-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+
+        .suggestsearch-input {
+            border-bottom-right-radius: unset;
+            border-bottom-left-radius: unset;
+        }
+
+        .suggestions-header {
+            margin-bottom: 1rem
+        }
+
+        .suggestion-container {
+            margin-left: 0.5rem
+        }
+
+        .suggestion-row a {
+            padding: 0.5rem;
+            display: flex;
+            cursor: pointer;
+            align-items: center;
+            text-decoration: none;
+            font-size: 13px;
+            justify-content: space-between;
+        }
+
+        .suggestion-row a:hover {
+            background-color: #f7f7f7;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .suggestion-row a > .arrow {
+            position: relative;
+            width: 8px;
+            height: 8px;
+            margin-left: 3px;
+            border-right: 2px solid rgba(255, 135, 0);
+            border-bottom: 2px solid rgba(255, 135, 0);
+            transform: rotate(-45deg);
+        }
+
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <script>
+    </script>
+    <div class="row">
+        <form action="{{ path('search-with-suggest') }}" method="get" class="form">
+            <div class="{{ (searchScope is empty) ? 'col-md-12 col-lg-12 order-2 order-md-1 mb-4' : 'mb-4' }}">
+                {% include 'partial/beta/searchinput.html.twig' with {'query': q, 'demand': demand, 'searchSuggest': searchSuggest} only %}
+            </div>
+
+            {% include 'partial/beta/form_filters.html.twig' with {'demand': demand} only %}
+        </form>
+        {% if searchScope is empty %}
+            <div class="col-md-4 col-lg-3 order-1 order-md-2 mb-4">
+                <div class="wy-menuXX wy-menu-verticalXX search-suggest-side" data-spy="affix" role="navigation" aria-label="main navigation">
+                    {% if searchSuggest is not empty %}
+                        <div>
+                            {% include 'partial/beta/suggestions.html.twig' with {'searchSuggest': searchSuggest, 'query': q, 'demand': demand} only %}
+                        </div>
+                    {% endif %}
+                    {% if hasAggs %}
+                        <div>
+                            {% include 'partial/beta/aggregations.html.twig' with {'aggregations': results.aggs, 'query': q, 'demand': demand} only %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="{{ (searchScope is empty) ? 'col-md-8 col-lg-9 order-2 order-md-1 mb-4' : 'mb-4' }}">
+            <ul class="list-group">
+                {% for hit in results.results %}
+                    <li class="list-group-item list-group-item-action hit">
+                        <h4>
+                            {% set slugParts = hit.data.manual_slug|split('/') %}
+                            {% set versionInSlug = hit.data.manual_version|filter(item => item in slugParts) | first %}
+                            {% set latestVersionSlug = hit.data.manual_slug|replace({ (versionInSlug): sortVersions(hit.data.manual_version, 'desc')|first }) %}
+                            <a class="text-dark"
+                               href="https://docs.typo3.org/{{ latestVersionSlug }}/{{ hit.data.relative_url }}#{{ hit.data.fragment }}">{{ hit.data.snippet_title|raw }}</a>
+                            <small class="text-muted fw-normal">{{ hit.data.manual_title }}</small>
+                            <span class="badge bg-secondary">{{ hit.data.manual_type }}</span>
+                            {% for version in sortVersions(filterVersions(hit.data.manual_version), 'desc') %}
+                                {% if version != versionInSlug %}
+                                    {% set versionBadgeSlug = hit.data.manual_slug|replace({ (versionInSlug): version }) %}
+                                {% else %}
+                                    {% set versionBadgeSlug = hit.data.manual_slug %}
+                                {% endif %}
+                                <a class="badge bg-primary text-decoration-none"
+                                   href="https://docs.typo3.org/{{ versionBadgeSlug }}/{{ hit.data.relative_url }}#{{ hit.data.fragment }}">{{ version }}</a>
+                            {% endfor %}
+                        </h4>
+                        <div class="position-relative">
+                            {% if hit.highlights and hit.highlights.snippet_content and hit.highlights.snippet_content[0] %}
+                                <p class="summary">{{ hit.highlights.snippet_content[0] | raw }}...</p>
+                            {% else %}
+                                <p class="summary">{{ hit.data.snippet_content|slice(0, 400) }}...</p>
+                            {% endif %}
+                            <a class="stretched-link" href="https://docs.typo3.org/{{ latestVersionSlug }}/{{ hit.data.relative_url }}#{{ hit.data.fragment }}"></a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% include '/partial/beta/paginator.html.twig' with {'result':results, 'arguments': {'q': q, 'scope': searchScope|striptags|escape, 'filters': filters}} %}
+{% endblock %}

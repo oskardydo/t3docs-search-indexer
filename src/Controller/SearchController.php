@@ -91,4 +91,39 @@ class SearchController extends AbstractController
 
         return new JsonResponse($jsonData);
     }
+
+    /**
+     * @return Response
+     * @throws InvalidException|JsonException
+     */
+    #[Route(path: '/suggest/list', name: 'suggest-list')]
+    public function suggestList(Request $request): Response
+    {
+        $searchDemand = SearchDemand::createFromRequest($request);
+        $jsonData = [
+            'demand' => $searchDemand->toArray(),
+            'suggest' => $this->elasticRepository->suggestScopes($searchDemand)
+        ];
+
+        return new JsonResponse($jsonData);
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidException|JsonException
+     */
+    #[Route(path: '/suggest/results', name: 'suggest-results')]
+    public function suggestResults(Request $request): Response
+    {
+        $searchDemand = SearchDemand::createFromRequest($request);
+
+        $searchResults = $this->elasticRepository->searchDocumentsForSuggest($searchDemand);
+        $jsonData['time'] = $searchResults['time'];
+
+        $jsonData['results'] = array_map(static function ($result) {
+            return $result->getData();
+        }, $searchResults['results']);
+
+        return new JsonResponse($jsonData);
+    }
 }

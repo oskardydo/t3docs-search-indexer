@@ -48,10 +48,6 @@ class SearchController extends AbstractController
         ]);
     }
 
-    /**
-     * @return Response
-     * @throws InvalidException|JsonException
-     */
     #[Route(path: '/search/beta', name: 'search-with-suggest')]
     public function searchSuggest(Request $request): Response
     {
@@ -69,10 +65,6 @@ class SearchController extends AbstractController
         ]);
     }
 
-    /**
-     * @return Response
-     * @throws InvalidException|JsonException
-     */
     #[Route(path: '/suggest', name: 'suggest')]
     public function suggest(Request $request): Response
     {
@@ -92,10 +84,6 @@ class SearchController extends AbstractController
         return new JsonResponse($jsonData);
     }
 
-    /**
-     * @return Response
-     * @throws InvalidException|JsonException
-     */
     #[Route(path: '/suggest/list', name: 'suggest-list')]
     public function suggestList(Request $request): Response
     {
@@ -108,10 +96,6 @@ class SearchController extends AbstractController
         return new JsonResponse($jsonData);
     }
 
-    /**
-     * @return Response
-     * @throws InvalidException|JsonException
-     */
     #[Route(path: '/suggest/results', name: 'suggest-results')]
     public function suggestResults(Request $request): Response
     {

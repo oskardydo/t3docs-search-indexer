@@ -6,7 +6,7 @@
         {% for key,filter in demand.filters %}
             {% if filter is iterable %}
                 {% for singleFilter in filter %}
-                    <span class="suggest-badge"><span class="badge bg-secondary">{{ getLabelForFilter(key) }}</span><span class="badge bg-primary text-decoration-none">{{ singleFilter }}<a class="suggest-remove" href="{{ generateLinkWithout(demand, key, singleFilter) }}"></a></span>
+                    <span class="suggest-badge"><span class="badge bg-secondary">{{ getLabelForFilter(key) }}</span><span class="badge bg-primary text-decoration-none">{{ singleFilter }}<a class="suggest-remove" href="{{ generateLinkWithout(demand, key, singleFilter, false) }}"></a></span>
                 </span>
                 {% endfor %}
             {% else %}

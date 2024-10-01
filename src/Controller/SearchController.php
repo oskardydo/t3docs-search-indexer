@@ -53,7 +53,7 @@ class SearchController extends AbstractController
         $searchDemand = SearchDemand::createFromRequest($request);
         $searchResults = $this->elasticRepository->findByQuery($searchDemand);
 
-        return $this->render('search/search_suggest.html.twig', [
+        return $this->render('search/beta/search.html.twig', [
             'q' => $searchDemand->getQuery(),
             'searchScope' => $searchDemand->getScope(),
             'demand' => $searchDemand,

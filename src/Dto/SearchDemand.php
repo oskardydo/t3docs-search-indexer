@@ -130,6 +130,10 @@ readonly class SearchDemand
                 'field' => 'option',
                 'type' => 'string'
             ],
+            'optionaggs' => [
+                'field' => 'option',
+                'type' => 'array'
+            ],
             'sversion' => [
                 'field' => 'manual_version',
                 'type' => 'string'
@@ -196,7 +200,11 @@ readonly class SearchDemand
         $filtersMap = self::getFilterMap();
 
         foreach ($filters as $filterKey => $filterValue) {
-            $filtersMapKey = array_combine(array_column($filtersMap, 'field'), array_keys($filtersMap))[$filterKey];
+            $filtersMapKey = array_combine(array_column($filtersMap, 'field'), array_keys($filtersMap))[$filterKey] ?? null;
+            if ($filtersMapKey === null) {
+                continue;
+            }
+
             $varType = $filtersMap[$filtersMapKey]['type'];
 
             $result = $this->addValueToFilterArray($result, $varType, $filtersMapKey, $filterValue);
@@ -250,7 +258,7 @@ readonly class SearchDemand
                 unset($filters[$key]);
                 break;
             case 'array':
-                if (in_array($filter, $filters[$key] ?? [])) {
+                if (is_array($filters[$key] ?? null) && in_array($filter, $filters[$key])) {
                     unset($filters[$key][array_search($filter, $filters[$key], true)]);
                 }
                 break;

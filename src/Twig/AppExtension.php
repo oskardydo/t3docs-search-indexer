@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Config\Labels;
 use App\Dto\SearchDemand;
 use App\Helper\VersionFilter;
 use App\Helper\VersionSorter;
@@ -123,16 +124,6 @@ class AppExtension extends AbstractExtension
 
     private function getLabelForFilter(string $filter): string
     {
-        $labels = [
-            'manual_vendor' => 'Vendor',
-            'manual_package' => 'Package',
-            'manual_version' => 'Version',
-            'is_core' => 'Core?',
-            'manual_type' => 'Document Type',
-            'major_versions' => 'Major Version',
-            'manual_language' => 'Language',
-        ];
-
-        return $labels[$filter] ?? $filter;
+        return Labels::getLabelForEsColumn($filter);
     }
 }

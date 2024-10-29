@@ -100,6 +100,27 @@ class AppExtension extends AbstractExtension
         return $in;
     }
 
+    /**
+     * Generates a frontend link to be used in Twig with the current demand filters, excluding a specific value
+     * in the specified filter
+     *
+     * Example:
+     *  Suppose we have the following query parameters:
+     *   - filters[vendor]=typo3
+     *   - filters[sversion]=main
+     *
+     *  If we want to generate a link that excludes vendor=typo3, we can use this method by passing:
+     *   - $key = vendor
+     *   - $value = typo3
+     *
+     * This will generate a link that includes only filters[sversion]=main.
+     *
+     * @param SearchDemand $demand current search demand object
+     * @param string $key name of the filter (e.g. vendor in filters[vendor]=typo3)
+     * @param mixed $value value of the filter (e.g. typo3 in filters[vendor]=typo3)
+     * @param bool $removeQuery whether to keep or remove 'q' from query parameters when generating the link
+     * @return string generated link without specific query param if exists
+     */
     private function generateLinkWithout(SearchDemand $demand, string $key, mixed $value, bool $removeQuery = true): string
     {
         $filters['filters'] = $demand->withFilterValueForLinkGeneration($key, $value);
@@ -111,6 +132,27 @@ class AppExtension extends AbstractExtension
         return $this->urlGenerator->generate('search-with-suggest', $filters);
     }
 
+
+    /**
+     * Generates a frontend link to be used in Twig with the current demand filters, including a specific value
+     * in the specified filter
+     *
+     * Example:
+     *  Suppose we have the following query parameter:
+     *   - filters[sversion]=main
+     *
+     *  If we want to generate a link that includes vendor = typo3, we can use this method by passing:
+     *   - $key = vendor
+     *   - $value = typo3
+     *
+     * This will generate a link that includes both filters[sversion]=main and filters[vendor]=typo3
+     *
+     * @param SearchDemand $demand current search demand object
+     * @param string $key name of the filter (e.g. vendor in filters[vendor]=typo3)
+     * @param mixed $value value of the filter (e.g. typo3 to add to the query string)
+     * @param bool $addQuery whether to include or exclude 'q' from query parameters when generating the link
+     * @return string generates a link with a specific query parameter. If an invalid filter is provided, the new filters[$key]=$value will be ignored
+     */
     private function generateLinkWith(SearchDemand $demand, string $key, mixed $value, bool $removeQuery = true): string
     {
         $filters['filters'] = $demand->withoutFilterValueForLinkGeneration($key, $value);
